@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.01
+// @version      1.02
 // @description  Fix the UR Interface
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -52,7 +52,8 @@
                     let intervalID = setInterval(function () {
                         if (document.getElementsByClassName("comment-list")[0]) {
                             let commentList = document.getElementsByClassName("comment-list");
-                            commentList[0].remove(); //style = "display: none;";
+                            //commentList[0].remove();
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view .comment-list').remove();
                             clearInterval(intervalID);
                             fixTheBox();
                             $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button').on('click', () => { fixTheBox(); });
@@ -78,7 +79,8 @@
                 if (document.getElementById("phuzReportComments")) {
                     document.getElementById("phuzReportComments").remove();
                 }
-                document.getElementsByClassName("conversation-view")[0].prepend(newDiv);
+                $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view').prepend(newDiv);
+                //document.getElementsByClassName("conversation-view")[0].prepend(newDiv);
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: "https://www.waze.com/Descartes/app/MapProblems/UpdateRequests?ids=" + reportID,
