@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.00
+// @version      1.01
 // @description  Fix the UR Interface
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -103,7 +103,7 @@
                                 }
                             }
                             divHTML += "<table border=0 width=100% cellpadding=1 cellspacing=1>";
-                            divHTML += "<tr><td><b>" + commentUser + "</b></td><td align=right style='font-size: 11px;'>" + moment(new Date(result.updateRequestSessions.objects[0].comments[i].createdOn)).format('LLL') + "</td></tr>";
+                            divHTML += "<tr><td><b>" + commentUser + "</b></td><td align=right style='font-size: 11px;'>" + moment(new Date(result.updateRequestSessions.objects[0].comments[i].createdOn)).format('lll') + "</td></tr>";
                             divHTML += "<tr><td colspan=2>" + result.updateRequestSessions.objects[0].comments[i].text + "</td></tr>";
                             divHTML += "<hr style='margin: 5px;'>";
                         }
