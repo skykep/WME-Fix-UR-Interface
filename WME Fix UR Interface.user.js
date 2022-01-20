@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.02
+// @version      1.03
 // @description  Fix the UR Interface
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -28,19 +28,29 @@
 (function () {
     'use strict';
     //Bootstrap
-    window["text123"] = 123;
     function bootstrap(tries = 1) {
         if (W && W.loginManager && W.map && W.loginManager.user && W.model
             && W.model.states && W.model.states.getObjectArray().length && WazeWrap && WazeWrap.Ready) {
-            if (!OpenLayers.Icon) {
-
-            }
+            setTimeout(function () {
+                loadObserver();
+            }, 2000);
         } else if (tries < 1000) {
             setTimeout(function () { bootstrap(++tries); }, 200);
         }
     }
 
-    bootstrap();
+    //thanks to dBsooner for providing the proper CSS for saving vertical space with the action buttons
+    function injectCss() {
+        $('<style = type="text/css">'
+            + '#panel-container .mapUpdateRequest.panel .problem-edit .actions .controls-container label[for|="state"] { height: 22px; width: 162px; line-height: 26px; margin-bottom: 6px; }'
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="open"] .actions .controls-container label[for="state-solved"]  { display: inline-block; }'
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="open"] .actions .controls-container label[for|="state-not-identified"] { display: inline-block; }'
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="solved"] .actions .controls-container label[for|="state-open"], '
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="not-identified"] .actions .controls-container label[for|="state-open"] { display: inline-block !important; }'
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="not-identified"] .actions .controls-container label[for|="state-not-identified"], '
+            + '#panel-container .mapUpdateRequest.panel .problem-edit[data-state="not-identified"] .actions .controls-container label[for|="state-solved"] { display: none !important; }'
+            + '</style>').appendTo('head');
+    }
 
     function loadObserver() {
         console.log("here we go...");
@@ -53,23 +63,35 @@
                         if (document.getElementsByClassName("comment-list")[0]) {
                             let commentList = document.getElementsByClassName("comment-list");
                             //commentList[0].remove();
-                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view .comment-list').remove();
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view .comment-list').hide();
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button').on('click', () => { buildTheComments(); });
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container').css('text-align', 'center');
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-solved]').css('width', '135px');
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-solved]').css('margin', '2px');
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-solved]').text("Solved");
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-not-identified]').css('width', '135px');
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-not-identified]').css('margin', '2px');
+                            $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-not-identified]').text("Not Identified");
+                            const shadowDOMstyle = document.createElement('style');
+                            shadowDOMstyle.innerHTML = '.wz-button.md { height: 30px !important; width: 60px !important; padding: 0px 6px !important; }';
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button')[0].shadowRoot.appendChild(shadowDOMstyle.cloneNode(true));
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .new-comment-follow').css('height', '34px');
+                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .new-comment-follow').css('line-height', '34px');
+                            $('wz-button.send-button').css('margin', '0px');
+                            $('wz-button.send-button').css('padding', '2px');
+
                             clearInterval(intervalID);
-                            fixTheBox();
-                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button').on('click', () => { fixTheBox(); });
+                            buildTheComments();
+                            injectCss();
                         }
                     }, 50);
                 }
             });
         });
-
         observer.observe(element, { subtree: true, childList: true, attributes: true });
     }
-    setTimeout(function () {
-        loadObserver();
-    }, 2000);
 
-    function fixTheBox() {
+    function buildTheComments() {
         let reports = document.getElementsByClassName("map-problem");
         for (i = 0; i < reports.length; i++) {
             if (reports[i].classList.contains("selected")) {
@@ -117,5 +139,5 @@
             }
         }
     }
-
+    bootstrap();
 })();
