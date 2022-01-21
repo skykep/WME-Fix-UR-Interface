@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.03
+// @version      1.04
 // @description  Fix the UR Interface
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -23,8 +23,6 @@
 
 // ==/UserScript==
 
-
-//Begin script function
 (function () {
     'use strict';
     //Bootstrap
@@ -32,12 +30,16 @@
         if (W && W.loginManager && W.map && W.loginManager.user && W.model
             && W.model.states && W.model.states.getObjectArray().length && WazeWrap && WazeWrap.Ready) {
             setTimeout(function () {
-                loadObserver();
-            }, 2000);
+                //loadObserver();
+            }, 500);
         } else if (tries < 1000) {
             setTimeout(function () { bootstrap(++tries); }, 200);
         }
     }
+
+    var reportID;
+    var conversationLength;
+    const timer = ms => new Promise(res => setTimeout(res, ms))
 
     //thanks to dBsooner for providing the proper CSS for saving vertical space with the action buttons
     function injectCss() {
@@ -62,9 +64,7 @@
                     let intervalID = setInterval(function () {
                         if (document.getElementsByClassName("comment-list")[0]) {
                             let commentList = document.getElementsByClassName("comment-list");
-                            //commentList[0].remove();
                             $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view .comment-list').hide();
-                            $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button').on('click', () => { buildTheComments(); });
                             $('#panel-container .mapUpdateRequest .actions .section .content .controls-container').css('text-align', 'center');
                             $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-solved]').css('width', '135px');
                             $('#panel-container .mapUpdateRequest .actions .section .content .controls-container label[for=state-solved]').css('margin', '2px');
@@ -81,8 +81,13 @@
                             $('wz-button.send-button').css('padding', '2px');
 
                             clearInterval(intervalID);
-                            buildTheComments();
                             injectCss();
+
+                            if (!document.getElementById("phuzReportComments")) {
+                                buildTheComments();
+                                $('#panel-container .mapUpdateRequest .top-section .body .conversation .new-comment-form .send-button').on('click', () => { appendNewComment(); });
+                            }
+
                         }
                     }, 50);
                 }
@@ -95,11 +100,11 @@
         let reports = document.getElementsByClassName("map-problem");
         for (i = 0; i < reports.length; i++) {
             if (reports[i].classList.contains("selected")) {
-                let reportID = (reports[i].getAttribute("data-id"));
+                reportID = (reports[i].getAttribute("data-id"));
                 var newDiv = document.createElement("div");
                 newDiv.id = "phuzReportComments";
                 if (document.getElementById("phuzReportComments")) {
-                    document.getElementById("phuzReportComments").remove();
+                    //document.getElementById("phuzReportComments").remove();
                 }
                 $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view').prepend(newDiv);
                 //document.getElementsByClassName("conversation-view")[0].prepend(newDiv);
@@ -108,15 +113,10 @@
                     url: "https://www.waze.com/Descartes/app/MapProblems/UpdateRequests?ids=" + reportID,
                     onload: function (response) {
                         let result = JSON.parse(response.responseText);
-                        let responder = [];
-                        if (result.users.objects.length > 0) {
-                            for (i = 0; i < result.users.objects.length; i++) {
-                                responder.push({ id: result.users.objects[i].id, user: result.users.objects[i].userName, rank: result.users.objects[i].rank + 1 });
-                            }
-                        }
-                        let divHTML = "";
+                        let divHTML = "<table id=tblURConversation border=0 width=100% cellpadding=1 cellspacing=2>";
                         let commentUser;
-                        for (i = 0; i < result.updateRequestSessions.objects[0].comments.length; i++) {
+                        conversationLength = result.updateRequestSessions.objects[0].comments.length;
+                        for (i = 0; i < conversationLength; i++) {
                             if (result.updateRequestSessions.objects[0].comments[i].userID == -1) {
                                 commentUser = "<font color=#26bae8>Reporter</font>";
                             } else {
@@ -126,12 +126,10 @@
                                     }
                                 }
                             }
-                            divHTML += "<table border=0 width=100% cellpadding=1 cellspacing=1>";
                             divHTML += "<tr><td><b>" + commentUser + "</b></td><td align=right style='font-size: 11px;'>" + moment(new Date(result.updateRequestSessions.objects[0].comments[i].createdOn)).format('lll') + "</td></tr>";
-                            divHTML += "<tr><td colspan=2>" + result.updateRequestSessions.objects[0].comments[i].text + "</td></tr>";
-                            divHTML += "<hr style='margin: 5px;'>";
+                            divHTML += "<tr style='background: #FFFFFF;border: 1px double #E6E6E6;border-radius: 1ex; '><td colspan=2>" + result.updateRequestSessions.objects[0].comments[i].text + "</td></tr>";
                         }
-                        divHTML += "</table>";
+                        divHTML += "</tbody></table>";
                         divHTML += "<hr style='margin: 5px;'>";
                         document.getElementById("phuzReportComments").innerHTML = divHTML;
                     }
@@ -139,5 +137,39 @@
             }
         }
     }
+    
+    function appendNewComment() {
+        let tblHTML = "";
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "https://www.waze.com/Descartes/app/MapProblems/UpdateRequests?ids=" + reportID,
+            onload: async function (response) {
+                let result = JSON.parse(response.responseText);
+                let commentUser;
+                let resultLength = result.updateRequestSessions.objects[0].comments.length;
+                let lastCommentIndex = resultLength - 1;
+                if (resultLength > conversationLength) {
+                    if (result.updateRequestSessions.objects[0].comments[lastCommentIndex].userID == -1) {
+                        commentUser = "<font color=#26bae8>Reporter</font>";
+                    } else {
+                        for (j = 0; j < result.users.objects.length; j++) {
+                            if (result.updateRequestSessions.objects[0].comments[lastCommentIndex].userID == result.users.objects[j].id) {
+                                commentUser = result.users.objects[j].userName + "(" + (result.users.objects[j].rank + 1) + ")";
+                            }
+                        }
+                    }
+                    tblHTML += "<tr><td><b>" + commentUser + "</b></td><td align=right style='font-size: 11px;'>" + moment(new Date(result.updateRequestSessions.objects[0].comments[lastCommentIndex].createdOn)).format('lll') + "</td></tr>";
+                    tblHTML += "<tr style='background: #FFFFFF;border: 1px double #E6E6E6;border-radius: 1ex; '><td colspan=2>" + result.updateRequestSessions.objects[0].comments[lastCommentIndex].text + "</td></tr>";
+                    $('#tblURConversation').append(tblHTML);
+                    conversationLength = resultLength;
+                } else {
+                    await timer(50);
+                    appendNewComment();
+                }
+            }
+        });
+    }
+
     bootstrap();
+    loadObserver();
 })();
