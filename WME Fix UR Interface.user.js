@@ -2,8 +2,8 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.04
-// @description  Fix the UR Interface
+// @version      1.05
+// @description  Fix the UR Interface that Waze devs ruined :(
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
 // @require      http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js
@@ -107,13 +107,14 @@
                     //document.getElementById("phuzReportComments").remove();
                 }
                 $('#panel-container .mapUpdateRequest .top-section .body .conversation .conversation-region .conversation-view').prepend(newDiv);
+                document.getElementById("phuzReportComments").style = "width: 100%";
                 //document.getElementsByClassName("conversation-view")[0].prepend(newDiv);
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: "https://www.waze.com/Descartes/app/MapProblems/UpdateRequests?ids=" + reportID,
                     onload: function (response) {
                         let result = JSON.parse(response.responseText);
-                        let divHTML = "<table id=tblURConversation border=0 width=100% cellpadding=1 cellspacing=2>";
+                        let divHTML = "<table id=tblURConversation border=0 cellpadding=1 cellspacing=2 style='table-layout: fixed; width: 100%'>";
                         let commentUser;
                         conversationLength = result.updateRequestSessions.objects[0].comments.length;
                         for (i = 0; i < conversationLength; i++) {
@@ -127,7 +128,7 @@
                                 }
                             }
                             divHTML += "<tr><td><b>" + commentUser + "</b></td><td align=right style='font-size: 11px;'>" + moment(new Date(result.updateRequestSessions.objects[0].comments[i].createdOn)).format('lll') + "</td></tr>";
-                            divHTML += "<tr style='background: #FFFFFF;border: 1px double #E6E6E6;border-radius: 1ex; '><td colspan=2>" + result.updateRequestSessions.objects[0].comments[i].text + "</td></tr>";
+                            divHTML += "<tr style='background: #FFFFFF;border: 1px double #E6E6E6;border-radius: 1ex; '><td colspan=2 style='word-wrap:break-word !important;'>" + result.updateRequestSessions.objects[0].comments[i].text + "</td></tr>";
                         }
                         divHTML += "</tbody></table>";
                         divHTML += "<hr style='margin: 5px;'>";
