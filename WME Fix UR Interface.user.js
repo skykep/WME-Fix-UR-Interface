@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.06
+// @version      1.08
 // @description  Fix the UR Interface that Waze devs ruined :(
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -27,7 +27,6 @@ var reportID;
 var conversationLength;
 const timer = ms => new Promise(res => setTimeout(res, ms))
 const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9JydqtfYbZnaqhtb/Kjpverrcudn//b3P/n6LNQVZ9KT9l2e85zeL9zd35MT/+ip8mBheSZnZJkZ59ydb2Mj//AxP/BxbmMj/jAw//KzeO2uf7R1P/a3P/d35IxOMZlbMdocNZ1fMRvdslyesZ0eqZhZsBxd859hP+xt/ess6t6ft2ssIlQVuiLldqJkvyirKd0ebB9gphucqR6fv/Bx8SXnMqdor2UmMCXm//N0v/q7KZTXc1tealocJhpb/+yvP+2wP/EzP/N1K9baP+vvNSSnKx3f82YoMyXn//s7//x85ldZ7N0f7N1gLh5hLd5hLV5g6p4gf/e5P/h5qllcqFnc9CMmeScqqVcbadeb8SSnf/M1//x9NaPof/j6v/r8P/v9P/o8P/q8f/67//47v/37f/16v/37//59P/w5v/t4//28f/o3P/z7cmroP/x7P/39P/s5v/v6v/08f/e1v/q5f/o49Stpv/n4+KimfHMxv/i3v/w7olKQ7B7df/Qyv/Z1PbTz//19IBhX/jMya+Qjv/j4bVxboljYoVrav/m5cJ4d7ZwcOi4uP/Qz66QkP/09P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAJYALAAAAAAOAAwAAAi4AC1JybJlChMdPHrsaEIFygdFGHyUCVOpTps2dQ6BgHGhUQYyHRj0sbMH0KJHITzEUOGCxQkDg/JAGtAAwIMcK4DQkEFEgyA/AQRAKOCgBQokSYKUIMCIUAQKI0yQMJJCSJEZFiYVuhNJwYEEEjZUQLRA0h81a+LMeSNHD59ECBxx+AEnDRs2aNzgCUTH0IQvXbhccXIGyxMRY8wcsfHCkhgvS2qAUYIBR5UoWqxY2ryZ0pAbnEMHBAA7';
-
 
 (function () {
     'use strict';
@@ -100,7 +99,7 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
 
     function buildTheComments() {
         let reports = document.getElementsByClassName("map-problem");
-        for (i = 0; i < reports.length; i++) {
+        for (let i = 0; i < reports.length; i++) {
             if (reports[i].classList.contains("selected")) {
                 reportID = (reports[i].getAttribute("data-id"));
                 var newDiv = document.createElement("div");
@@ -119,13 +118,13 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
                         let divHTML = "<table id=tblURConversation border=0 cellpadding=1 cellspacing=2 style='table-layout: fixed; width: 100%'>";
                         let commentUser;
                         conversationLength = result.updateRequestSessions.objects[0].comments.length;
-                        for (i = 0; i < conversationLength; i++) {
+                        for (let i = 0; i < conversationLength; i++) {
                             if (result.updateRequestSessions.objects[0].comments[i].userID == -1) {
                                 commentUser = "<font color=#26bae8>Reporter</font>";
                             } else {
-                                for (j = 0; j < result.users.objects.length; j++) {
+                                for (let j = 0; j < result.users.objects.length; j++) {
                                     if (result.updateRequestSessions.objects[0].comments[i].userID == result.users.objects[j].id) {
-                                        commentUser = "<a href='https://www.waze.com/forum/user_message_redirect.php?username=" + result.users.objects[j].userName + "'><img src='" + pmIcon + "'></a> " + result.users.objects[j].userName + "(" + (result.users.objects[j].rank + 1) + ")";
+                                        commentUser = "<a href='https://www.waze.com/forum/user_message_redirect.php?username=" + result.users.objects[j].userName + "' target='_blank'><img src='" + pmIcon + "'></a> " + result.users.objects[j].userName + "(" + (result.users.objects[j].rank + 1) + ")";
                                     }
                                 }
                             }
@@ -154,9 +153,9 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
                     if (result.updateRequestSessions.objects[0].comments[lastCommentIndex].userID == -1) {
                         commentUser = "<font color=#26bae8>Reporter</font>";
                     } else {
-                        for (j = 0; j < result.users.objects.length; j++) {
+                        for (let j = 0; j < result.users.objects.length; j++) {
                             if (result.updateRequestSessions.objects[0].comments[lastCommentIndex].userID == result.users.objects[j].id) {
-                                commentUser = result.users.objects[j].userName + "(" + (result.users.objects[j].rank + 1) + ")";
+                                commentUser = "<a href='https://www.waze.com/forum/user_message_redirect.php?username=" + result.users.objects[j].userName + "' target='_blank'><img src='" + pmIcon + "'></a> " + result.users.objects[j].userName + "(" + (result.users.objects[j].rank + 1) + ")";
                             }
                         }
                     }
