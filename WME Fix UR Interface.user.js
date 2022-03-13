@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.08
+// @version      1.09
 // @description  Fix the UR Interface that Waze devs ruined :(
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -36,6 +36,7 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
             && W.model.states && W.model.states.getObjectArray().length && WazeWrap && WazeWrap.Ready) {
             setTimeout(function () {
                 //loadObserver();
+                fixClosures();
             }, 500);
         } else if (tries < 1000) {
             setTimeout(function () { bootstrap(++tries); }, 200);
@@ -56,7 +57,6 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
     }
 
     function loadObserver() {
-        console.log("here we go...");
         const element = document.getElementById("panel-container");
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -91,6 +91,18 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
 
                         }
                     }, 50);
+                }
+            });
+        });
+        observer.observe(element, { subtree: true, childList: true, attributes: true });
+    }
+
+    function fixClosures() {
+        const element = document.getElementById("edit-panel");
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (document.getElementById("segment-edit-closures")) {
+                    $('#segment-edit-closures .closures .closures-list').css('display', 'inline');
                 }
             });
         });
