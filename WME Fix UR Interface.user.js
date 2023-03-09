@@ -160,6 +160,10 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
                 let result = JSON.parse(response.responseText);
                 let commentUser;
                 let resultLength = result.updateRequestSessions.objects[0].comments.length;
+                //Remove the "No Comments" text if comments are present
+                if (resultLength > 0) {
+                    $('#panel-container .mapUpdateRequest .top-section .body .conversation .content .conversation-view .no-comments').hide();
+                }
                 let lastCommentIndex = resultLength - 1;
                 if (resultLength > conversationLength) {
                     if (result.updateRequestSessions.objects[0].comments[lastCommentIndex].userID == -1) {
