@@ -2,7 +2,7 @@
 // @name         WME Fix UR Interface
 // @namespace    https://greasyfork.org/en/users/668704-phuz
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @version      1.10
+// @version      1.11
 // @description  Fix the UR Interface that Waze devs ruined :(
 // @author       phuz
 // @include      /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\/?.*$/
@@ -112,7 +112,7 @@ const pmIcon = 'data:image/png;base64,R0lGODlhDgAMAPcAANaGh6dLTs9obK5cXrpkZ9Jydq
     function buildTheComments() {
         let reports = document.getElementsByClassName("map-problem");
         for (let i = 0; i < reports.length; i++) {
-            if (reports[i].classList.contains("selected")) {
+            if (reports[i].classList.contains("marker-selected")) {
                 reportID = (reports[i].getAttribute("data-id"));
                 var newDiv = document.createElement("div");
                 newDiv.id = "phuzReportComments";
